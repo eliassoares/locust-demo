@@ -1,0 +1,35 @@
+version: '3'
+
+services:
+  havan_test:
+    image: locustio/locust
+    ports:
+     - "8089:8089"
+    volumes:
+      - ./:/mnt/locust
+    command: -f /mnt/locust/havan_user.py
+
+  api_test:
+    image: locustio/locust
+    ports:
+      - "8089:8089"
+    volumes:
+      - ./:/mnt/locust
+    command: -f /mnt/locust/api_user.py
+    networks:
+      - locust-network
+    depends_on:
+      - api
+
+  api:
+    build: api
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_APP=app.py
+    networks:
+      - locust-network
+
+networks:
+  locust-network:
+    driver: bridge
